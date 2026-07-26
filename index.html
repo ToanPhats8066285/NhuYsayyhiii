@@ -378,8 +378,10 @@
     const boxRect = buttonsBox.getBoundingClientRect();
     const btnRect = noBtn.getBoundingClientRect();
     const maxX = Math.max(boxRect.width - btnRect.width - 24, 40);
-    const randX = (Math.random() * maxX) - (maxX / 2);
-    const randY = (Math.random() * 26) - 13;
+    const distX = 45 + Math.random() * Math.max(maxX / 2 - 45, 20);
+    const randX = Math.random() < 0.5 ? -distX : distX;
+    const distY = 16 + Math.random() * 14;
+    const randY = Math.random() < 0.5 ? -distY : distY;
     noBtn.style.left = randX + 'px';
     noBtn.style.top = randY + 'px';
   }
