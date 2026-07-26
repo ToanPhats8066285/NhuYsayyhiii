@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đừng giận anh nữa nhé</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Cormorant+Garamond:wght@400;500;600&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #fbf3ea;
+    --paper-edge: #f0e2d2;
+    --ink: #4a3226;
+    --ink-soft: #7a6152;
+    --rose: #b5495b;
+    --rose-deep: #8f3446;
+    --gold: #c19a5b;
+    --envelope: #d9a9a0;
+    --envelope-flap: #c98f88;
+    --bg-a: #f6d9c9;
+    --bg-b: #eab6bd;
+  }
+
+  *{ box-sizing: border-box; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+
+  html, body{
+    height: 100%;
+    margin: 0;
+  }
+
+  body{
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    background:
+      radial-gradient(circle at 15% 15%, rgba(255,255,255,0.35), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(255,255,255,0.25), transparent 40%),
+      linear-gradient(155deg, var(--bg-a), var(--bg-b));
+    overflow: hidden;
+    position: relative;
+    padding: 24px;
+  }
+
+  /* ambient floating petals */
+  .petal{
+    position: fixed;
+    top: -40px;
+    font-size: 20px;
+    opacity: 0.55;
+    color: var(--rose);
+    animation: fall linear infinite;
+    pointer-events: none;
+    user-select: none;
+  }
+  @keyframes fall{
+    to{ transform: translateY(110vh) rotate(220deg); }
+  }
+
+  .stage{
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    perspective: 1400px;
+  }
+
+  /* ---------- ENVELOPE ---------- */
+  .envelope-wrap{
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    cursor: pointer;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .envelope-wrap.hidden{
+    opacity: 0;
+    transform: scale(0.9);
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+  }
+
+  .envelope-body{
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, var(--envelope), #cf9992);
+    border-radius: 10px;
+    box-shadow: 0 30px 60px -20px rgba(90, 40, 40, 0.45), 0 8px 20px rgba(90,40,40,0.25);
+    overflow: hidden;
+  }
+  .envelope-body::before{
+    /* bottom triangle shading */
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 60%;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.08));
+  }
+  .flap{
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 62%;
+    background: linear-gradient(160deg, var(--envelope-flap), #b97b73);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top center;
+    transition: transform 0.9s cubic-bezier(.6,-0.2,.3,1.3);
+    z-index: 4;
+    box-shadow: 0 2px 6px rgba(90,30,30,0.15) inset;
+  }
+  .envelope-wrap.open .flap{
+    transform: rotateX(180deg);
+  }
+
+  .seal{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 58px;
+    height: 58px;
+    transform: translate(-50%, -60%);
+    background: radial-gradient(circle at 35% 30%, #e0b877, var(--gold) 60%, #a97f3f 100%);
+    border-radius: 50%;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .seal svg{ width: 26px; height: 26px; fill: #fff8ec; }
+  .envelope-wrap.open .seal{
+    opacity: 0;
+    transform: translate(-50%, -60%) scale(0.4);
+  }
+
+  .letter-peek{
+    position: absolute;
+    left: 6%; right: 6%;
+    bottom: 6%;
+    top: 18%;
+    background: var(--paper);
+    border-radius: 6px 6px 2px 2px;
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.08);
+    z-index: 2;
+    transition: transform 0.9s cubic-bezier(.2,.8,.2,1) 0.15s;
+  }
+  .envelope-wrap.open .letter-peek{
+    transform: translateY(-58%);
+  }
+
+  .hint{
+    position: absolute;
+    bottom: -34px;
+    left: 0; right: 0;
+    text-align: center;
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.25rem;
+    color: var(--rose-deep);
+    letter-spacing: 0.02em;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%, 100%{ opacity: 0.65; transform: translateY(0); }
+    50%{ opacity: 1; transform: translateY(-3px); }
+  }
+
+  /* ---------- LETTER CARD ---------- */
+  .card{
+    position: absolute;
+    inset: 0;
+    background: var(--paper);
+    border-radius: 14px;
+    padding: 46px 34px 38px;
+    text-align: center;
+    box-shadow: 0 40px 80px -30px rgba(90,40,40,0.5), 0 0 0 1px var(--paper-edge);
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.6s ease 0.35s, transform 0.6s cubic-bezier(.2,.8,.2,1) 0.35s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    min-height: 420px;
+  }
+  .card.visible{
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+    position: relative;
+  }
+
+  .eyebrow{
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.35rem;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+  }
+
+  h1{
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: clamp(1.5rem, 5vw, 2.05rem);
+    color: var(--rose-deep);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .sub{
+    color: var(--ink-soft);
+    font-size: 1.15rem;
+    margin: -6px 0 4px;
+    max-width: 320px;
+  }
+
+  .divider{
+    width: 64px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 2px 0;
+  }
+
+  .buttons{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    height: 64px;
+    width: 100%;
+  }
+
+  button{
+    font-family: 'Cormorant Garamond', serif;
+    padding: 13px 32px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  #yesBtn{
+    background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+    color: #fff8ec;
+    border: none;
+    box-shadow: 0 10px 24px -8px rgba(143,52,70,0.6);
+  }
+  #yesBtn:hover{ transform: translateY(-2px) scale(1.04); box-shadow: 0 14px 28px -8px rgba(143,52,70,0.7); }
+  #yesBtn:focus-visible{ outline: 3px solid var(--gold); outline-offset: 3px; }
+
+  #noBtn{
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1.5px solid var(--paper-edge);
+    position: relative;
+  }
+  #noBtn:focus-visible{ outline: 3px solid var(--gold); outline-offset: 3px; }
+
+  .result{
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--rose-deep);
+    min-height: 1.6em;
+  }
+
+  .footnote{
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.1rem;
+    color: var(--ink-soft);
+    opacity: 0.8;
+  }
+
+  /* ---------- Yes celebration ---------- */
+  .heart-burst{
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    overflow: hidden;
+  }
+  .heart-burst span{
+    position: absolute;
+    bottom: -30px;
+    font-size: 20px;
+    color: var(--rose);
+    animation: rise 2.6s ease-in forwards;
+  }
+  @keyframes rise{
+    0%{ transform: translateY(0) rotate(0deg); opacity: 1; }
+    100%{ transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+  }
+
+  @media (max-width: 420px){
+    .card{ padding: 38px 22px 30px; min-height: 400px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="envelope-wrap" id="envelope" role="button" tabindex="0" aria-label="Mở phong thư">
+    <div class="letter-peek"></div>
+    <div class="envelope-body"></div>
+    <div class="flap"></div>
+    <div class="seal">
+      <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.4 8.1 2.4 4.5 6 4.5c2.2 0 3.7 1.3 4.5 2.6C11.3 5.8 12.8 4.5 15 4.5c3.6 0 5.6 3.6 4 7.2C19.5 16.4 12 21 12 21z"/></svg>
+    </div>
+    <div class="hint">chạm vào để mở thư ✉️</div>
+  </div>
+
+  <div class="card" id="card">
+    <div class="eyebrow">gửi em,</div>
+    <h1 id="question">Đừng giận anh nữa nhé?</h1>
+    <p class="sub" id="subtext">Anh biết anh sai rồi. Cho anh xin lỗi nha 🥺</p>
+    <div class="divider"></div>
+
+    <div class="buttons" id="buttonsBox">
+      <button id="yesBtn" type="button">Dạ, tha thứ</button>
+      <button id="noBtn" type="button">Không</button>
+    </div>
+
+    <div class="result" id="result"></div>
+    <div class="footnote" id="footnote">— người luôn yêu em nhất —</div>
+  </div>
+
+</div>
+
+<script>
+  // ambient petals
+  const petalChars = ['❀','✿','❦'];
+  const stageBody = document.body;
+  for(let i=0;i<10;i++){
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.textContent = petalChars[i % petalChars.length];
+    p.style.left = Math.random()*100 + 'vw';
+    p.style.animationDuration = (10 + Math.random()*10) + 's';
+    p.style.animationDelay = (Math.random()*10) + 's';
+    p.style.fontSize = (14 + Math.random()*14) + 'px';
+    stageBody.appendChild(p);
+  }
+
+  const envelope = document.getElementById('envelope');
+  const card = document.getElementById('card');
+
+  function openEnvelope(){
+    if(envelope.classList.contains('open')) return;
+    envelope.classList.add('open');
+    setTimeout(() => {
+      envelope.classList.add('hidden');
+      card.classList.add('visible');
+    }, 550);
+  }
+  envelope.addEventListener('click', openEnvelope);
+  envelope.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openEnvelope(); }
+  });
+
+  const noBtn = document.getElementById('noBtn');
+  const buttonsBox = document.getElementById('buttonsBox');
+  const result = document.getElementById('result');
+  const question = document.getElementById('question');
+  const subtext = document.getElementById('subtext');
+  const footnote = document.getElementById('footnote');
+
+  function dodge(){
+    const boxRect = buttonsBox.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+    const maxX = Math.max(boxRect.width - btnRect.width - 24, 40);
+    const randX = (Math.random() * maxX) - (maxX / 2);
+    const randY = (Math.random() * 26) - 13;
+    noBtn.style.left = randX + 'px';
+    noBtn.style.top = randY + 'px';
+  }
+
+  noBtn.addEventListener('mouseenter', dodge);
+  noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); dodge(); }, { passive: false });
+
+  noBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    result.textContent = 'Hong đừng hòng! 😤';
+    dodge();
+    setTimeout(() => { if(result.textContent.includes('Hong')) result.textContent = ''; }, 1300);
+  });
+
+  function heartBurst(){
+    const layer = document.createElement('div');
+    layer.className = 'heart-burst';
+    const hearts = ['💕','💖','🌸','✨','💐'];
+    for(let i=0;i<26;i++){
+      const s = document.createElement('span');
+      s.textContent = hearts[Math.floor(Math.random()*hearts.length)];
+      s.style.left = Math.random()*100 + 'vw';
+      s.style.fontSize = (16 + Math.random()*18) + 'px';
+      s.style.animationDelay = (Math.random()*0.8) + 's';
+      s.style.animationDuration = (2 + Math.random()*1.4) + 's';
+      layer.appendChild(s);
+    }
+    document.body.appendChild(layer);
+    setTimeout(() => layer.remove(), 3600);
+  }
+
+  document.getElementById('yesBtn').addEventListener('click', () => {
+    question.textContent = 'Yeee, cảm ơn em ❤️';
+    subtext.textContent = 'Anh hứa lần sau sẽ ngoan hơn.';
+    buttonsBox.style.display = 'none';
+    result.textContent = 'Dạ em đồng ý! Yêu anh nhiều 💕';
+    footnote.textContent = '— của em, mãi mãi —';
+    heartBurst();
+  });
+</script>
+
+</body>
+</html>
